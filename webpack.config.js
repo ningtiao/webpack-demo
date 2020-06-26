@@ -12,6 +12,12 @@ module.exports = {
     // __dirname是node.js的变量,代表当前文件目录绝对路径
     path: resolve(__dirname, 'dist') // 输出路径
   },
+  devServer: {
+    contentBase: resolve(__dirname, 'dist'),
+    compress: true, // 启动gzip压缩
+    port: '3000', // 端口号,
+    open: true, // 自动打开浏览器
+  },
   // 详细loader配置
   module: {
     rules: [
@@ -33,6 +39,15 @@ module.exports = {
           // 将less文件编译成css文件
           'less-loader'
         ]
+      },
+      {
+        test: /\.js$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
+        }
       },
       {
         // 处理图片
