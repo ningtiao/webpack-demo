@@ -625,10 +625,16 @@ export { createHeading, add }
 执行 yarn serve 然后会提示一系列的ESlint 语法检查, 我们只需将有问题的再次修改就行了
 ![](https://user-gold-cdn.xitu.io/2020/6/28/172f987a25d04a21?w=904&h=170&f=png&s=27450)
 
-### 开发环境优化 热模块替换 HMR
+### webpack HMR
+- 极大的提高了开发者的工作效率
+- 全称 Hot Module Replacement
+- 自动刷新会导致整个页面状态丢失
+- HMR 模块热替换
+- 热替换只将修改的模块实时替换至应用中
 - 在devServe中配置hot: true 就默认开启热更新了
 - 样式文件: 可以开启HMR,在style-loader内部实现了
 - js文件: 默认不能使用HMR功能
+- 开启HMR webpack-dev-server --hot 也可通过配置文件开启
 - 解决: 修改entry入口,将html文件引入
 ```javascript
 // entry: ['./src/js/index.js', './src/index.html']
@@ -698,6 +704,8 @@ devtool: 'source-map'
 
 ```
 
+### 选择Source Map模式
+
 ### code split 文件分割
 ```javascript
 entry: {
@@ -731,3 +739,25 @@ optimization: {
 
 ```
 
+### 不同环境配置
+- 配置文件根据环境不同导出不同配置
+
+```javascript
+// webpack.common.js
+// webpack.dev.js
+// webapack.prod.js
+
+// 安装 yarn add wenpack-merge --dev
+// yarn webpack --config webpack.prod.js // 生产环境
+
+const common = require('./webpack.common)
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const { CopyWebpackPlugin } = require('copy-webpack-plugin')
+
+module.exports = merge(common, {
+  mode: 'production',
+  plugins: [
+
+  ]
+})
+```
