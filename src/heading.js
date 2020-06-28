@@ -1,15 +1,22 @@
-const createHeading = () => {
-  let element = document.createElement('h1');
+const createHeading = function createHeading() {
+  const element = document.createElement('h1');
   element.textContent = 'Hello Webpack';
   element.className = 'title';
-  return element
-}
+  return element;
+};
 
-const add = (a, b) => {
-  return a + b
-}
+const noCamelCased = () => {
+  console.log('大白55菜');
+};
+noCamelCased();
 
-export {
-  createHeading,
-  add
-}
+const doSomething = () => {
+  // ...
+};
+
+doSomething();
+const add = function add(a, b) {
+  return a + b;
+};
+
+export { createHeading, add };
