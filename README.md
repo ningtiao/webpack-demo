@@ -1,29 +1,29 @@
 
-> 该文将使用Webpack 版本4.43.0, node.js 版本 10.21,将从以下三个部分来使用webpack进行项目的打包构建
+
+> 该文将使用Webpack 版本4.43.0, node.js 版本 10.21,将从以下二个部分来使用webpack进行深入使用
 - 从简单的使用Webpack到深入
-- 从零开始配置 vue3.0 项目进行构建
 - Webpack的原理
-### Webpack 是什么
+### 一、Webpack 是什么
 Webpack 是一种前端构建工具, 一个静态模块打包器(module bunder).
 在Webpack看来, 前端所有的资源文件(js/json/css/img/less/...)都会作为模块处理
 它将根据模块的依赖关系进行静态分析,打包生成对应的静态资源(bundle)。
-### Webpack的优点
+### 二、Webpack的优点
 - 专注处理模块化的项目,能做到开箱即用,一步到位
 - 可通过Plugin扩展,完整好用又不失灵活
 - 使用场景不限于web开发
 - 社区庞大活跃, 经常引入紧跟时代的新特性,能为大多数场景找到已有的开源扩展
 - 良好的开发体验
-### 在开始前,我们需要了解Webpack 的五大核心概念
-####  1、入口 `entry` 
-- 入口 `entry` 指示Webpack以那个文件为入口起点开始打包,分析构建内部依赖图
-```javascript
+### 三 、Webpack 的五大核心概念
+####  1、入口 Entry
+入口 Entry 指示Webpack以那个文件为入口起点开始打包,分析构建内部依赖图
+```
 module.exports = {
   entry: './src/index.js'
 };
 ```
-####  2、输出 (output)
-- output 属性告诉 webpack 在哪里输出它所创建的 bundles，以及如何命名这些文件，默认值为`./dist`
-```javascript
+####  2、输出 (Output)
+output 属性告诉 webpack 在哪里输出它所创建的bundles，以及如何命名这些文件，默认值为`./dist`基本上，整个应用程序结构，都会被编译到你指定的输出路径的文件夹中。你可以通过在配置中指定一个 `output` 字段，来配置这些处理过程
+```
 const path = require('path');
 module.exports = {
   entry: './src/index.js',
@@ -34,35 +34,57 @@ module.exports = {
 };
 ```
 #### 3、Loader
-- loader 让Webpack能够去处理那些非JavaScript文件（webpack 自身只理解 JavaScript）loader 可以将所有类型的文件转换为 webpack 能够处理的有效模块，然后你就可以利用 webpack 的打包能力，对它们进行处理
+loader 让Webpack能够去处理那些非JavaScript文件（webpack 自身只理解 JavaScript）loader 可以将所有类型的文件转换为 webpack 能够处理的有效模块，然后你就可以利用 webpack 的打包能力，对它们进行处理
+
+```
+module: {
+  rules: [
+    {
+      test: /\.css$/,
+      use: [
+        'style-loader',
+        'css-loader'
+      ]
+    },
+  ]
+}
+```
 #### 4、Plugin
-- 插件(Plugin) 可以用于执行范围更广的任务, 插件的范围包括,从打包优化和压缩,一直到重新定义环境中的变量等
-#### 5、模式 (mode) 告诉Webpack使用相应的配置
-- development  | 会将process.env.NODE_ENV的值设为development | 能让代码把本地调试运行环境
-- production 能让代码运行优化上线运行的环境
+Plugin用于扩展Webpack的功能,各种各样的Plugin几乎可以让Webpack做任何与构建相关的事情,Plugin的配置很简单,Plugins配置项接收一个数组,数组里面的每一项都是一个要使用Plugin的实例。
 ```javascript
+// yarn add html-webpack-plugin --dev
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+
+plugins: [
+  new HtmlWebpackPlugin({
+    template: './index.html'
+  })
+]
+```
+#### 5、模式 (mode) 告诉Webpack使用相应模式的内置优化
+- development 能让代码把本地调试运行环境
+- production 能让代码运行优化上线运行的环境
+```
 module.exports = {
   mode: 'production',
   <!--mode: 'development'-->
 };
-
 ```
-### 快速上手
+### 四、初始化项目
 现在我们来开始新建一个项目
-
+1. 新建文件夹,文件名称随意,编辑器打开该文件夹或通过cmd切换到该该文件夹
+2. 初始化pageage.json文件
+3. 安装yarn webpack webpack-cli --dev 到开发环境
+4. 目录, 这里的内容可以随便填写
 ```javascript
 mkdir  webpack-demo
 cd webpack-demo
-
 // 目录
 // 初始化package.json
 yarn init --yes
 // 安装webpack, webpack-cli 到devDependencies 开发环境依赖中
 yarn webpack webpack-cli --dev
 ```
-目录, 这里的内容可以随便填写
-
-
 ![](https://user-gold-cdn.xitu.io/2020/6/26/172f0840e6700f20?w=700&h=218&f=png&s=12338)
 ```javascript
 // heading.js
@@ -92,22 +114,19 @@ document.body.append(heading)
 </html>
 
 ```
-- 执行 `yarn webpack` 命令, 接着我们的根目录下就有一个为dist文件,里面有个`main.js`,然后我们将index.html中的script src属性修改为dist文件,打开就可以直接看到我们创建的一个H1标签了
-
-- 为了每次打包不使用yarn webpack 我们还可以在package.json中配置scripts,这样我们就后面就可以直接执行yarn build就行了
+5. 执行 `yarn webpack` 命令, 接着我们的根目录下就有一个为dist文件,里面有个main.js,然后我们将index.html中的属性修改为dist文件,打开就可以直接看到我们创建的一个h1标签了
+6. 为了每次打包使用方便,我们还可以在package.json中配置scripts,这样我们就后面就可以直接执行`yarn build`就行了
 ```
 <script src="./dist/main.js"></script>
 "scripts": {
    "build": "webpack"
 },
 ```
-### 打包样式资源
-在根目录下创建 `webpack.config.js`
-在`src` 目录下创建css文件夹, `index.css, index.less`样式可以随便写
-
+### 五、处理样式资源
+- 在根目录下创建 `webpack.config.js`在`src` 目录下创建css文件夹, `index.css, index.less`样式可以随便写
 ![](https://user-gold-cdn.xitu.io/2020/6/26/172f0bfdc17dd912?w=900&h=110&f=png&s=6196)
 ```
-安装依赖 yarn add style-loader css-loader less-loader --dev`
+// 安装依赖 yarn add style-loader css-loader less-loader --dev
 ```
 ```javascript
 // webpack.config.js
@@ -154,34 +173,31 @@ module.exports = {
   // mode: 'production',
 }
 ```
-执行yarn build命令, 再次运行index.html 可以看到样式资源也被打包到了`bundle.js`, 不过这里我们还是要去手动修改一下index.html的js文件。后面我们会将html一起打包就不需要手动引入了
-
+- 执行yarn build命令, 再次运行index.html 可以看到样式资源也被打包到了`bundle.js`, 不过这里我们还是要去手动修改一下index.html的js文件。后面我们会将html一起打包就不需要手动引入了
 ![](https://user-gold-cdn.xitu.io/2020/6/26/172f0c5ee85d9bdf?w=848&h=233&f=png&s=9640)
+### 六、处理HTML资源
+- 安装依赖 yarn add html-webpack-plugin --dev
+    ```javascript
+    // webpack.config.js 头部引入
+    const HtmlWebpackPlugin = require('html-webpack-plugin')
+    
+    // 在plugin中使用
+    module.exports = {
+      plugins: [
+        // 默认创建一个空HTML,自动打包输出的所有资源,这里对应index.html文件
+        new HtmlWebpackPlugin({
+          // 复制 './index.html'文件,并自动打包引入输出所有资源
+          template: './index.html'
+        })
+      ]
+    }
+    ```
+- 执行 yarn build 打包完成后dist目录此时会多出一个index.html文件
 
-### 打包html资源
+### 七、处理图片资源
+- 安装依赖 yarn add url-loader html-loader --dev
+- 在src目录下新建image图片目录, 图片类型可以自己任意选择
 ```javascript
-yarn add html-webpack-plugin --dev
-
-// webpack.config.js 头部引入
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-
-// 在plugin中使用
-plugins: [
-  // 默认创建一个空HTML,自动打包输出的所有资源,这里对应index.html文件
-  new HtmlWebpackPlugin({
-    // 复制 './index.html'文件,并自动打包引入输出所有资源
-    template: './index.html'
-  })
-],
-```
-执行 yarn build 打包完成后dist目录此时会多出一个index.html文件
-
-### 打包图片资源
-```javascript
-yarn add url-loader html-loader --dev
-
-// 在src 目录下新建image图片目录
-
 // 添加新的loader在module中
   {
     // 处理图片
@@ -204,22 +220,19 @@ yarn add url-loader html-loader --dev
     // 处理html文件img图片
     loader: 'html-loader',
   },
-  
+
 // 因为url-loader默认是使用es6模块化解析的,而html-loader引入图片是commonjs,
 // 解析会出现问题:[object Module],使用commonjs解析
 // 关闭url-loader的es6 module esModule: false
 ```
-执行 yarn build
+- 执行 yarn build
 
-###  打包其他资源(字体图标)
-这里我是在阿里矢量图标库下了几个字体图标文件
-
-[阿里矢量图标库](https://www.iconfont.cn/)
-
+###  八、处理其他资源(字体图标)
+- 这里我是在阿里矢量图标库下了几个字体图标文件
+-  安装依赖 yarn add file-loader --dev
+- [阿里矢量图标库](https://www.iconfont.cn/)
 ```javascript
 // src 目录创建font
-yarn add file-loader --dev
-
 // index.js 导入iconfont.css
 import './font/iconfont.css'
 
@@ -230,81 +243,67 @@ import './font/iconfont.css'
 <span class="iconfont icon-rishi-riquanshi"></span
 ```
 ![](https://user-gold-cdn.xitu.io/2020/6/26/172f0ea27c117247?w=769&h=164&f=png&s=9392)
-
-执行 yarn build
-
-### Webpack 与ES 2015
- 新特性没有被webpack处理,es6转换
- ```javascript
- yarn add babel-loader @babel/core @babel/preset-env --dev
- 
-  {
-    test: /\.js$/,
-    use: {
-      loader: 'babel-loader',
-      options: {
-        presets: ['@babel/preset-env']
-      }
+- 执行 yarn build
+### 九、Webpack 与 ES 2015
+ - 由于ES6等 新特性没有被webpack处理。转换成浏览器可以识别的ES5代码
+ -  yarn add babel-loader @babel/core @babel/preset-env --dev
+```javascript
+{
+  test: /\.js$/,
+  exclude: /node_modules/, // 排除 node_modules 目录
+  use: {
+    loader: 'babel-loader',
+    options: {
+      presets: ['@babel/preset-env']
     }
-  },
- ```
+  }
+},
+```
  执行yarn build  此时箭头函数, const 等属性被转换es5
 
-### 自动清除输出目录插件
-在之前打包每次都会留下原来的文件,需要手动删除,加入了这个插件后在打包前每次都会自动清除了
+### 十、自动清除dist目录
+- 在之前打包每次都会留下原来的文件,需要手动删除,加入了这个插件后在打包前每次都会自动清除了
+- 安装依赖
 ```javascript
 yarn add clean-webpack-plugin --dev
-
+// webpack.config.js
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 // 使用
 plugins: [
   new CleanWebpackPlugin()
 ],
 ```
-执行yarn build2
+- 执行yarn build2
 
-### webpack devServer 开发服务器 自动打包
-```
-yarn add webpack-dev-server --dev
-```
-#### 在webpack.config.js中配置devServer
-```javascript
-devServer: {
-  contentBase: resolve(__dirname, 'dist'),
-  compress: true, // 启动gzip压缩
-  port: '3000', // 端口号,
-  open: true, // 自动打开浏览器
-},
-```
-####  package.json添加
-```javascript
-"scripts": {
-  "serve": "webpack-dev-server --open --config webpack.config.js",
-}
-```
-#### devServer详细配置
-```javascript
-devServer: {
-  contentBase: resolve(__dirname, 'dist'),
-  watchContentBase: true, // 监视contentBase目录下的所有文件,一旦文件变化就会reload
-  wacthOptions: {
-    ignored: /node_modules/
-  },
-  compress: true, // 启动gzip压缩
-  port: 8020, // 端口
-  host: 'loaclhost', 域名
-  hot: HMR, // 开启HMR功能
-  clientLogLevel: 'none', // 不要显示启动服务器日志信息
-  quiet: true, // 除了一些基本期待能够信息以外,其他内容都不要显示
-  overlay: false, // 如果出错了,不要全屏提示
-  proxy: {}, // 服务器代码 ---> 解决开发环境跨域问题
-}
-```
-> webpack-dev-server只会在内存中编译打包,不会有任何输出
+### 十一、搭建开发环境
 
-执行 yarn serve 此时就会自动打开浏览器啦,并且会自动编译,自动刷新浏览器,提升开发体验。
+#### Source Map
+- Source Map 是一种提供源代码到构建后代码映射技术,如果构建后代码出错了,构建后的代码和源代码千差万别,找代码出错位置难,可读性非常差,
+- 而选择了对应的sourc-map之后, 构建后的代码出错了可以追踪源代码的错误,利于我们调试,找出代码出错的原因。
+- 解决了源代码和运行代码不一致所所产生的问题
+- Webpack支持转换生成的代码输出对应Source Map文件,以方便在浏览器中调试,控制Source Map输出的Webpack配置选项是devtool,他有很多选项
+具体可以看这里https://www.webpackjs.com/configuration/devtool/
 
-### 开发环境配置完整代码
+![image](https://user-gold-cdn.xitu.io/2020/6/28/172fa555f67a3221?w=875&h=790&f=png&s=109005)
+
+#### 选择Source Map
+> 对于开发环境
+以下选项非常适合开发环境
+
+![image](https://user-gold-cdn.xitu.io/2020/6/28/172fa56cae8c49d7?w=1077&h=374&f=png&s=82467)
+> 对于生产环境
+
+![image](https://user-gold-cdn.xitu.io/2020/6/28/172fa5f9f173cea0?w=1212&h=333&f=png&s=57022)
+
+> 开发环境推荐
+cheap-module-eval-source-map
+- 能够定位到错误代码的准确信息和源代码错误位置, 综合构建速度
+> 生产环境推荐
+- 源代码要不要隐藏
+使用 none 或者 source Map, 不暴露源代码
+
+#### 开发环境完整代码
+
 ```javascript
 // resolve 用来拼接绝对路径的方法
 const { resolve } =  require('path')
@@ -330,19 +329,12 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.css$/,
+        test: /\.(css|less)$/,
         use: [
           // use数组中loader执行顺序,从下到上
           // 创建style标签,将js中的样式资源插入进行
           'style-loader',
           // 将css 文件变成commonjs模块加载到js中
-          'css-loader'
-        ]
-      },
-      {
-        test: /\.less$/,
-        use: [
-          'style-loader',
           'css-loader',
           // 将less文件编译成css文件
           'less-loader'
@@ -397,12 +389,55 @@ module.exports = {
   // mode: 'production', // 生产模式
 }
 ```
+### 十二、webpack devServer
+```javascript
+yarn add webpack-dev-server --dev
+```
+- 在webpack.config.js中配置devServer
+```javascript
+devServer: {
+  contentBase: resolve(__dirname, 'dist'),
+  compress: true, // 启动gzip压缩
+  port: '3000', // 端口号,
+  open: true, // 自动打开浏览器
+},
+```
+- package.json添加
+```javascript
+"scripts": {
+  "serve": "webpack-dev-server --open --config webpack.config.js",
+}
+```
+#### devServer详细配置
+```javascript
+devServer: {
+  contentBase: resolve(__dirname, 'dist'),
+  watchContentBase: true, // 监视contentBase目录下的所有文件,一旦文件变化就会reload
+  wacthOptions: {
+    ignored: /node_modules/
+  },
+  compress: true, // 启动gzip压缩
+  port: 8020, // 端口
+  host: 'loaclhost', 域名
+  hot: HMR, // 开启HMR功能
+  clientLogLevel: 'none', // 不要显示启动服务器日志信息
+  quiet: true, // 除了一些基本期待能够信息以外,其他内容都不要显示
+  overlay: false, // 如果出错了,不要全屏提示
+  proxy: {}, // 服务器代码 ---> 解决开发环境跨域问题
+}
+```
+> webpack-dev-server只会在内存中编译打包,不会有任何输出
 
-### 生产环境优化  提取css成单独文件
-- css 在打包过程在js文件中, 会导致js文件体积变大, 同时因为是先加载js,才能通过style标签插入到页面中, 会出现闪屏现象,体验不好,所以我们需要优化将css 从js 提取出来,还要对css代码进行压缩
+执行 yarn serve 此时就会自动打开浏览器啦,并且会自动编译,自动刷新浏览器,提升开发体验。
+
+### 十三、 优化  提取css成单独文件
+- css 在打包过程在js文件中, 会导致js文件体积变大, 影响加载速度,同时因为是先加载js,才能通过style标签插入到页面中, 会出现闪屏现象,体验不好,所以我们需要优化将css 从js 提取出来,还要对css代码进行压缩
 - 样式部分和js代码兼容问题
 - 处理好这些可以让我们的代码更快更好更强的运行, 性能会更好,可以保证在各个浏览器平稳运行
-
+首先我们需要抽离CSS所用到的loader
+```javascript
+yarn add mini-css-extract-plugin --dev
+```
 ```javascript
 // 这里我们为了构建生产环境 新建一个文件webpack.prod.js
 // 同时在package.json 可以加入
@@ -412,7 +447,6 @@ module.exports = {
   "build": "webpack"
 },
 
-yarn add mini-css-extract-plugin --dev
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 // 我们需要将style-loader 替换成 MiniCssExtractPlugin.loader
@@ -454,7 +488,7 @@ plugins: [
 
 ```
 
-### CSS兼容性处理
+### 十四、 CSS兼容性处理
 - 使用loader 默认配置 postcss-loader
 - 修改loader 配置
 - 在 package.json 中的browserslist里面的配置,通过配置兼容指定的css 兼容性样式
@@ -516,7 +550,6 @@ pageage.json加入配置
 .container img:hover{
   transform: rotate(180deg);
 }
-
 ```
 
 ### 压缩CSS
@@ -549,17 +582,14 @@ new HtmlWebpackPlugin({
 - JS 是松散类型的语言，没有编译的过程。只有运行时才能找到问题，开发时很容易出错
 - ESLint 有自己的一套规范，当然，我们也可以自定义规则
 - https://eslint.bootcss.com/docs/rules/
+- 安装依赖yarn add eslint eslint-loader babel-eslint --dev
 ```javascript
-yarn add eslint eslint-loader --dev
-#### parser（指定解析器）
 
-// babel-eslint 解析器是一种使用频率很高的解析器，因为现在很多公司的很多项目目前都使用了es6，为了兼容性考虑基本都使用babel插件对代码进行编译。而用babel编译后的代码使用 babel-eslint 这款解析器可以避免不必要的麻烦
-
+// parser（指定解析器）
+// babel-eslint 解析器是一种使用频率很高的解析器，因为现在很多公司的很多项目目前都使用了es6,
+// 为了兼容性考虑基本都使用babel插件对代码进行编译。而用babel编译后的代码使用 babel-eslint 这款解析器可以避免不必要的麻烦
 yarn add babel-eslint --dev
-
-
 // 新建.eslintrc.js
-
 module.exports = {
   "extends": "airbnb-base",
   root: true,
@@ -580,9 +610,8 @@ module.exports = {
     "no-alert": 0 // 禁止使用alert
   }
 };
-
 ```
-接下来我们在webpack.config.js配置loader
+- 接下来我们在webpack.config.js配置loader
 ```javascript
 {
   test: /\.js$/,
@@ -622,10 +651,11 @@ export { createHeading, add }
 // 
 
 ```
-执行 yarn serve 然后会提示一系列的ESlint 语法检查, 我们只需将有问题的再次修改就行了
+- 执行 yarn serve 然后会提示一系列的ESlint 语法检查, 我们只需将有问题的再次修改就行了
+
 ![](https://user-gold-cdn.xitu.io/2020/6/28/172f987a25d04a21?w=904&h=170&f=png&s=27450)
 
-### webpack HMR
+### 十三、Webpack HMR
 - 极大的提高了开发者的工作效率
 - 全称 Hot Module Replacement
 - 自动刷新会导致整个页面状态丢失
@@ -649,7 +679,6 @@ plugins: [
   new webpack.HotModuleReplacementPlugin()
 ]
 
-
 // js
 if (module.hot) {
   // 一旦module.hot 为true 说明开启了HMR功能
@@ -659,55 +688,8 @@ if (module.hot) {
   });
 }
 ```
-
-### source map
-- 开发环境
-- source map 是一种提供源代码到构建后代码映射技术 如果后代码出错了,构建后和源代码千差万别,找代码出错位置难, 构建后代码出错了可以追踪源代码的错误,利于我们调试找出出错的原因
-- 解决了源代码和运行代码不一致所所产生的问题
-
-```javascript
-devtool: 'source-map'
-- source-map
-  错误代码准确信息和源代码错误位置
-- inline-source-map
- 错误代码准确信息和源代码错误位置
-- hidden
- 错误代码错误原因,但是没有错误位置
- 不能追踪源代码错误,只能提示到构建够的代码错误位置
-
-- eval-source-map
-错误代码准确信息和源代码错误位置
-- nosources-source-map
-错误代码准确信息但是没有任何源代码信息
-- cheap-source-map
-错误代码准确信息和源代码错误位置
-- cheap-module-source-map
-错误代码准确信息和源代码错误位置
-内联和外部的区别
-1. 外部生成了文件,内联没有
-2 内联构建速度极快
-开发环境: 速度快,调试更友好
-  速度快(eval> inline> cheap)
-  eval-cheap-source-map
-  eval-source-map
-  调试更友好
-  source-map 
-  cheap-module-source-map
-  cheap-source-map
-  结论eval-source-map -> eval-cheap-module-source-map
-生产环境: 源代码要不要隐藏
- nosources-source-map
- hidden-source-map
-内联会让代码体积变大,所以生产不建议
-1 source-map
-3 hidden-source-map
-2 source-map
-
-```
-
-### 选择Source Map模式
-
-### code split 文件分割
+### Code Split 文件分割
+1 多入口
 ```javascript
 entry: {
   // 多入口

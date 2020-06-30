@@ -110,3 +110,9 @@ module.exports = {
   mode: 'development', // 开发模式
   // mode: 'production',
 }
+
+plugins: [
+  new HtmlWebpackPlugin({
+    template: './index.html'
+  })
+]
