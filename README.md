@@ -122,11 +122,14 @@ document.body.append(heading)
    "build": "webpack"
 },
 ```
-### 五、处理样式资源
-- 在根目录下创建 `webpack.config.js`在`src` 目录下创建css文件夹, `index.css, index.less`样式可以随便写
+### 五、处理样式文件
+处理样式文件我们需要借助loader, 一般常用的loader 有 css-loader less-loader sass-loader
+
+在根目录下创建 `webpack.config.js`在`src` 目录下创建css文件夹, `index.css, index.less`样式可以随便写
 ![](https://user-gold-cdn.xitu.io/2020/6/26/172f0bfdc17dd912?w=900&h=110&f=png&s=6196)
-```
-// 安装依赖 yarn add style-loader css-loader less-loader --dev
+安装依赖 
+```javascript
+yarn add style-loader css-loader less-loader --dev
 ```
 ```javascript
 // webpack.config.js
@@ -146,21 +149,10 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.css$/, // 匹配css 文件
-        use: [
-          // use数组中loader执行顺序,从下到上
-          // 创建style标签,将js中的样式资源插入进行
-          'style-loader',
-          // 将css 文件变成commonjs模块加载到js中
-          'css-loader'
-        ]
-      },
-      {
-        test: /\.less$/,
+        test: /\.(css|less)$/, // 匹配css 文件
         use: [
           'style-loader',
           'css-loader',
-          // 将less文件编译成css文件
           'less-loader'
         ]
       }
@@ -173,9 +165,22 @@ module.exports = {
   // mode: 'production',
 }
 ```
-- 执行yarn build命令, 再次运行index.html 可以看到样式资源也被打包到了`bundle.js`, 不过这里我们还是要去手动修改一下index.html的js文件。后面我们会将html一起打包就不需要手动引入了
+**这几个loader的作用**
+- style-loader 动态创建style标签,将js中的样式资源插入进行
+- css-loader  将css 文件变成commonjs模块加载到js中
+- less-loader 将less文件编译成css文件
+
+**注意:**
+- 这里需要注意use数组中loader执行顺序,它是从下到上, 或者说从右到左
+- loader 还有一个参数pre,可以修优先级
+- 
+**接着我们可以去执行打包**
+
+ 执行yarn build命令, 再次运行index.html 可以看到样式资源也被打包到了`bundle.js`, 不过这里我们还是要去手动修改一下index.html的js文件。后面我们会将html一起打包就不需要手动引入了
 ![](https://user-gold-cdn.xitu.io/2020/6/26/172f0c5ee85d9bdf?w=848&h=233&f=png&s=9640)
-### 六、处理HTML资源
+
+
+### 6、处理HTML资源
 - 安装依赖 yarn add html-webpack-plugin --dev
     ```javascript
     // webpack.config.js 头部引入
@@ -194,25 +199,25 @@ module.exports = {
     ```
 - 执行 yarn build 打包完成后dist目录此时会多出一个index.html文件
 
-### 七、处理图片资源
-- 安装依赖 yarn add url-loader html-loader --dev
-- 在src目录下新建image图片目录, 图片类型可以自己任意选择
+### 7、处理图片资源
+ 我们在项目开发中,肯定少不了引入本地图片资源,那如何处理图片资源呢,我们还需要用loader去处理它
+ 可以用 url-loader 或者 file-loader 来处理本地的资源文件
+ 
+```
+yarn add url-loader html-loader --dev
+```
 ```javascript
-// 添加新的loader在module中
   {
-    // 处理图片
     test: /\.(jpg|png|gif)$/,
     loader: 'url-loader',
     options: {
-      // 图片大小小于8kb,就会被base64处理
+      // 图片大小小于10kb,就会被base64处理
       // 优点: 减少请求数量(减轻服务器压力)
       // 缺点: 图片体积会更大(文件请求速度更慢)
       limit: 10 * 1024,
       esModule: false,
-      // 给图片进行命名
-      // [hash:10] 取图片前10位
       name: '[hash:10].[ext]',
-      outputPath: 'image' // 输出目录
+      outputPath: 'image'
     }
   },
   {
@@ -225,12 +230,21 @@ module.exports = {
 // 解析会出现问题:[object Module],使用commonjs解析
 // 关闭url-loader的es6 module esModule: false
 ```
+**url-loader的配置**
+- limit: 10*1024 即图片大小小于10kb的时候,就会被base64处理,超过10kb的就会被拷贝到dist目录,这里这么做优点是可以减少请求数量(减轻服务器的压力),缺点图片的体积会更大(文件请求速度更慢)
+- esmMoule: false 这里是为了解决`<img src="./image/xxx.png" />` 会出现`<img src=[Module Object] />`的问题
+- name: '[hash:10].[ext] 给图片重命名,  [hash:10] 取图片前10位
+- outputPath: 输出目录
+
 - 执行 yarn build
 
-###  八、处理其他资源(字体图标)
-- 这里我是在阿里矢量图标库下了几个字体图标文件
--  安装依赖 yarn add file-loader --dev
-- [阿里矢量图标库](https://www.iconfont.cn/)
+###  8、处理其他资源(字体图标)
+对于字体图片文件我们可以使用url-loader或者file-loader
+这里我是在阿里矢量图标库下了几个字体图标文件
+```
+ yarn add file-loader --dev
+```
+[阿里矢量图标库](https://www.iconfont.cn/)
 ```javascript
 // src 目录创建font
 // index.js 导入iconfont.css
@@ -243,10 +257,13 @@ import './font/iconfont.css'
 <span class="iconfont icon-rishi-riquanshi"></span
 ```
 ![](https://user-gold-cdn.xitu.io/2020/6/26/172f0ea27c117247?w=769&h=164&f=png&s=9392)
-- 执行 yarn build
-### 九、Webpack 与 ES 2015
- - 由于ES6等 新特性没有被webpack处理。转换成浏览器可以识别的ES5代码
- -  yarn add babel-loader @babel/core @babel/preset-env --dev
+### 9、Webpack 与 ES 2015
+用来处理ES6语法，将其编译为浏览器可以执行的js语法
+
+由于Webkpack默认就能处理我们的代码中的export 和import,但是并不能转换其他的ES6等新特性,我们需要为js文件配置一个额外的编一些型loader,那最常见最常见的就是babel-loader,由于babael-loader需要额外的依赖于babel核心模块,所以我们需要安装多个模块,以及用于去完成具体 的特性转换插件的集合叫babel/preset-env
+ ```
+ yarn add babel-loader @babel/core @babel/preset-env --dev
+ ```
 ```javascript
 {
   test: /\.js$/,
@@ -259,13 +276,14 @@ import './font/iconfont.css'
   }
 },
 ```
- 执行yarn build  此时箭头函数, const 等属性被转换es5
+执行yarn build  此时箭头函数等属性被转换es5
 
-### 十、自动清除dist目录
-- 在之前打包每次都会留下原来的文件,需要手动删除,加入了这个插件后在打包前每次都会自动清除了
-- 安装依赖
-```javascript
+### 10、自动清除dist目录
+在之前打包每次都会留下原来的文件,需要手动删除,那么如何能自动删除呢,我们需要加入了这个插件后在打包前每次都会自动清除了
+```
 yarn add clean-webpack-plugin --dev
+```
+```javascript
 // webpack.config.js
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 // 使用
@@ -273,9 +291,7 @@ plugins: [
   new CleanWebpackPlugin()
 ],
 ```
-- 执行yarn build2
-
-### 十一、搭建开发环境
+### 11、搭建开发环境
 
 #### Source Map
 - Source Map 是一种提供源代码到构建后代码映射技术,如果构建后代码出错了,构建后的代码和源代码千差万别,找代码出错位置难,可读性非常差,
@@ -389,7 +405,7 @@ module.exports = {
   // mode: 'production', // 生产模式
 }
 ```
-### 十二、webpack devServer
+### 12、Webpack devServer
 ```javascript
 yarn add webpack-dev-server --dev
 ```
@@ -430,7 +446,7 @@ devServer: {
 
 执行 yarn serve 此时就会自动打开浏览器啦,并且会自动编译,自动刷新浏览器,提升开发体验。
 
-### 十三、 优化  提取css成单独文件
+### 13、 优化  提取css成单独文件
 - css 在打包过程在js文件中, 会导致js文件体积变大, 影响加载速度,同时因为是先加载js,才能通过style标签插入到页面中, 会出现闪屏现象,体验不好,所以我们需要优化将css 从js 提取出来,还要对css代码进行压缩
 - 样式部分和js代码兼容问题
 - 处理好这些可以让我们的代码更快更好更强的运行, 性能会更好,可以保证在各个浏览器平稳运行
@@ -488,14 +504,13 @@ plugins: [
 
 ```
 
-### 十四、 CSS兼容性处理
+### 14、 CSS兼容性处理
 - 使用loader 默认配置 postcss-loader
 - 修改loader 配置
 - 在 package.json 中的browserslist里面的配置,通过配置兼容指定的css 兼容性样式
 
 ```javascript
 yarn add postcss-loader postcss-preset-env --dev
-
 ```
 pageage.json加入配置
 ``` javascript
@@ -552,7 +567,7 @@ pageage.json加入配置
 }
 ```
 
-### 压缩CSS
+### 15、压缩CSS
 
 ```javascript
 yarn add optimize-css-assets-webpack-plugin --dev
@@ -565,7 +580,7 @@ plugins: [
 ]
 ```
 
-### HTML压缩
+### 16、HTML压缩
 ```javascript
 new HtmlWebpackPlugin({
   template: './src/index.html',
@@ -577,7 +592,7 @@ new HtmlWebpackPlugin({
 }),
 ```
 
-### JS语法检查ESlint
+### 17、JS语法检查ESlint
 - ESLint 可以统一 js 的开发规范与风格，一个团队内部的每个人的代码风格都不一样，比如有的人还在用 es5，有的人用 es6+,当查阅或修改别人代码的时候会很难下手，效率不高，最后造成项目难维护，ESLint 则会解决这个痛点
 - JS 是松散类型的语言，没有编译的过程。只有运行时才能找到问题，开发时很容易出错
 - ESLint 有自己的一套规范，当然，我们也可以自定义规则
@@ -655,7 +670,7 @@ export { createHeading, add }
 
 ![](https://user-gold-cdn.xitu.io/2020/6/28/172f987a25d04a21?w=904&h=170&f=png&s=27450)
 
-### 十三、Webpack HMR
+### 18、Webpack HMR
 - 极大的提高了开发者的工作效率
 - 全称 Hot Module Replacement
 - 自动刷新会导致整个页面状态丢失
@@ -688,7 +703,7 @@ if (module.hot) {
   });
 }
 ```
-### Code Split 文件分割
+### 19、Code Split 文件分割
 1 多入口
 ```javascript
 entry: {
@@ -722,7 +737,7 @@ optimization: {
 
 ```
 
-### 不同环境配置
+### 20、不同环境配置
 - 配置文件根据环境不同导出不同配置
 
 ```javascript
