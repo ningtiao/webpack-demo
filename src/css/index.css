@@ -13,7 +13,13 @@
 .container img {
   width: 300px;
   height: 300px;
+  transition: width 2s, height 2s, background-color 2s, transform 2s;
   border-radius: 20px;
+  box-shadow: 0 0 10px #f00;
+  display: flex;
+}
+.container img:hover{
+  transform: rotate(180deg);
 }
 .iconfont{
   font-size:30px
